@@ -21,6 +21,8 @@ ValKey хранилище для сессий и MongoDB хранилище дл
 
 Регистрация пользователя через суперадмина
 
+Попробовать swaggo/gin-swagger для генерации кода для фронта (openapi generator)
+
 
 # Пример флоу незарегестрированного пользователя
 ![unauth_floaw.png](resources/pic/unauth_floaw.png)
@@ -37,8 +39,8 @@ nginx в качестве reverse прокси
 
 # Схема БД
 table User
-    - id
-    - login
-    - password_hash
-    - registration date
-    - totp secret
+* id
+* login
+* password_hash
+* registration date
+* totp secret

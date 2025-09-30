@@ -1,7 +1,13 @@
 package routes
 
-import "github.com/gin-gonic/gin"
+import (
+	"auth-proxy/share"
 
-func Ping(c *gin.Context) {
-	c.JSON(200, "pong")
+	"github.com/gin-gonic/gin"
+)
+
+func Ping(appContext *share.AppContext) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.JSON(200, "pong")
+	}
 }

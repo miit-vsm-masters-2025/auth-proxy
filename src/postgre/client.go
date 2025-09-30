@@ -1,0 +1,20 @@
+package postgre
+
+import (
+	"auth-proxy/utils"
+	"database/sql"
+	"fmt"
+
+	_ "github.com/lib/pq"
+)
+
+func PostgresClient(host, port, user, password, dbname string) *sql.DB {
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		panic(err)
+	}
+	return db
+}

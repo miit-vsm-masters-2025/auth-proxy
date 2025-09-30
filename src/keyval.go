@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/valkey-io/valkey-go"
 )
@@ -16,9 +17,13 @@ func test() {
 	defer ValKeyClient.Close()
 
 	ctx := context.Background()
-	result := ValKeyClient.Do(ctx, ValKeyClient.B().Set().Key("test").Value("val").Nx().Build())
-	fmt.Println(result.AsStrMap())
-	result = ValKeyClient.Do(ctx, ValKeyClient.B().Get().Key("test").Build())
-	str, _ := result.ToString()
-	fmt.Println(str)
+	result := ValKeyClient.Do(ctx, ValKeyClient.B().Set().Key("test").Value(strconv.Itoa(99)).Build())
+	fmt.Println(result)
+	fmt.Println(ValKeyClient.Do(ctx, ValKeyClient.B().Get().Key("test").Build()).ToInt64())
+	//var str string
+	//str, err = ValKeyClient.Do(ctx, ValKeyClient.B().Get().Key("test").Build()).ToInt64()
+	//r, _ := strconv.ParseInt(str, 10, 64)
+	//fmt.Println(err)
+	//fmt.Println(str)
+	//fmt.Println(r)
 }

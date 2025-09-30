@@ -1,34 +1,44 @@
 package main
 
 import (
+	"auth-proxy/utils"
+	valkeypackage "auth-proxy/valkey"
+
 	"github.com/gin-gonic/gin"
 
+	"auth-proxy/postgre"
 	"auth-proxy/routes"
-	"auth-proxy/utils"
-	"auth-proxy/valkey"
-	"go.uber.org/zap"
+	"auth-proxy/share"
 )
 
-func createRouter() *gin.Engine {
+func createRouter(appCtx share.AppContext) *gin.Engine {
 	router := gin.Default()
-	router.GET("/ping", routes.Ping)
-	router.Any("/_auth", routes.CheckAuth)
+	router.GET("/ping", routes.Ping(&appCtx))
+	router.Any("/_auth", routes.CheckAuth(&appCtx))
+	auth := router.Group("/user")
+	{
+		auth.GET("/me", routes.CheckAuth(&appCtx))
+		auth.GET("/login", routes.CheckAuth(&appCtx))
+		auth.GET("/reg", routes.CheckAuth(&appCtx))
+	}
+	router.POST("/user/login", routes.CheckAuth(&appCtx))
 	return router
 }
 
-//type struct AppContext {
-//	valkey string
-//	logger *zap.Logger
-//}
-
 func main() {
-	loggerHandler, sync := utils.Logger()
+	logger, sync := utils.Logger()
 	defer sync()
 
-	utils.LoadEnv()
-	router := createRouter()
-	// that is bad practise https://stackoverflow.com/questions/35672842/go-and-gin-passing-around-struct-for-database-context
-	router.Use(valkey.ValkeyClient(utils.GetValKeyAddress())) // create middleware that provide valkey client
-	router.Use(loggerHandler)                                 // create middleware that provide logger
+	utils.LoadEnv(logger)
+
+	valkeyClient := valkeypackage.ValkeyClient(utils.GetValKeyAddress())
+	defer (*valkeyClient).Close()
+
+	postgresClient := postgre.PostgresClient(utils.GetPostgresConf())
+	defer (*postgresClient).Close()
+	postgre.CreateTable(postgresClient)
+
+	appCtx := share.AppContext{Valkey: valkeyClient, Logger: logger, PostgresClient: postgresClient}
+	router := createRouter(appCtx)
 	router.Run(":8080")
 }
