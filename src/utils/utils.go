@@ -10,16 +10,23 @@ import (
 )
 
 func LoadEnv(logger *zap.SugaredLogger) {
-	err := godotenv.Load()
+	err := godotenv.Load(".env.example")
 	if err != nil {
-		logger.Fatal("Error loading .env file")
+		logger.Fatal("Error loading .env file:", err)
 	}
 }
 
 // GetValKeyAddress runs after LoadEnv call
 func GetValKeyAddress() string {
-	port, err := strconv.ParseInt(os.Getenv("VALKEY_PORT"), 10, 0)
+	port_env := os.Getenv("VALKEY_PORT")
+	if port_env == "" {
+		port_env = "6379"
+	}
+	port, err := strconv.ParseInt(port_env, 10, 0)
 	host := os.Getenv("VALKEY_HOST")
+	if host == "" {
+		host = "localhost"
+	}
 	if err != nil {
 		panic(err)
 	}

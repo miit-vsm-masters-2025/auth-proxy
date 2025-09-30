@@ -1,12 +1,12 @@
 package main
 
 import (
+	"auth-proxy/postgre"
 	"auth-proxy/utils"
 	valkeypackage "auth-proxy/valkey"
 
 	"github.com/gin-gonic/gin"
 
-	"auth-proxy/postgre"
 	"auth-proxy/routes"
 	"auth-proxy/share"
 )
@@ -17,11 +17,10 @@ func createRouter(appCtx share.AppContext) *gin.Engine {
 	router.Any("/_auth", routes.CheckAuth(&appCtx))
 	auth := router.Group("/user")
 	{
-		auth.GET("/me", routes.CheckAuth(&appCtx))
-		auth.GET("/login", routes.CheckAuth(&appCtx))
-		auth.GET("/reg", routes.CheckAuth(&appCtx))
+		//auth.GET("/me", routes.CheckAuth(&appCtx))
+		auth.POST("/login", routes.Login(&appCtx))
+		auth.POST("/reg", routes.Register(&appCtx))
 	}
-	router.POST("/user/login", routes.CheckAuth(&appCtx))
 	return router
 }
 
@@ -31,7 +30,7 @@ func main() {
 
 	utils.LoadEnv(logger)
 
-	valkeyClient := valkeypackage.ValkeyClient(utils.GetValKeyAddress())
+	valkeyClient := valkeypackage.Client(utils.GetValKeyAddress())
 	defer (*valkeyClient).Close()
 
 	postgresClient := postgre.PostgresClient(utils.GetPostgresConf())
@@ -40,5 +39,5 @@ func main() {
 
 	appCtx := share.AppContext{Valkey: valkeyClient, Logger: logger, PostgresClient: postgresClient}
 	router := createRouter(appCtx)
-	router.Run(":8080")
+	router.Run(":9000")
 }

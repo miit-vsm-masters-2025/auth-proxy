@@ -1,7 +1,6 @@
 package postgre
 
 import (
-	"auth-proxy/utils"
 	"database/sql"
 	"fmt"
 
