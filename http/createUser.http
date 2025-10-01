@@ -1,3 +1,4 @@
+### create user request
 POST http://localhost:9000/user/reg
     ?generated-in=GoLand
 Content-Type: application/json

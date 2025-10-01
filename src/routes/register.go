@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"auth-proxy/postgre"
 	"auth-proxy/share"
 	"encoding/json"
 	"io"
@@ -9,28 +10,40 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func parseRegisterBody(ctx *gin.Context) (*share.Reg, error) {
+	var reg share.Reg
+	body, err := io.ReadAll(ctx.Request.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(body, &reg)
+	return &reg, err
+}
+
 func Register(appContext *share.AppContext) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var reg share.Reg
-		body, err := io.ReadAll(ctx.Request.Body)
+		registerForm, err := parseRegisterBody(ctx)
 		if err != nil {
-			panic(err)
-		}
-		if err := json.Unmarshal(body, &reg); err != nil {
 			appContext.Logger.Debugf(err.Error())
 			ctx.AbortWithStatus(400)
 			return
 		}
-		pass, err := bcrypt.GenerateFromPassword([]byte(reg.Password), 0)
+		password, err := bcrypt.GenerateFromPassword([]byte(registerForm.Password), 0)
+		login := registerForm.Login
 		if err != nil {
 			panic(err)
 		}
-		appContext.PostgresClient.Exec(
-			"INSERT INTO user (login, password_hash, totp_secret) VALUES (?, ?, ?)",
-			reg.Login,
-			pass,
+		err = postgre.AddUser(
+			appContext.PostgresClient,
+			login,
+			string(password),
 			"",
 		)
+		if err != nil {
+			appContext.Logger.Warnf(err.Error())
+			ctx.AbortWithStatus(500)
+			return
+		}
 
 	}
 

@@ -1,5 +1,11 @@
-### GET request to example server
-GET https://examples.http-client.intellij.net/get
+### sign in request
+POST http://localhost:9000/user/login
     ?generated-in=GoLand
+Content-Type: application/json
+
+{
+  "login": "adm",
+  "password": "adm"
+}
 
 ###
