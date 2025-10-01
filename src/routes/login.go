@@ -19,7 +19,7 @@ func saveSession(client *valkey.Client, userId int) (sessionId string) {
 	if len(sessionId) > 255 {
 		sessionId = sessionId[:255]
 	}
-	localvalkey.SetSession(*client, sessionId, userId)
+	localvalkey.SetSession(client, sessionId, userId)
 	return sessionId
 }
 

@@ -7,6 +7,8 @@ import (
 	"github.com/pquerna/otp/totp"
 )
 
+// unused file
+
 func InitTOTP(issuer, accountName string) bytes.Buffer {
 	key, err := totp.Generate(totp.GenerateOpts{
 		Issuer:      issuer,
