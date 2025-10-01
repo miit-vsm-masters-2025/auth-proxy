@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: ubuntu/postgres
+    container_name: my-postgres
+    environment:
+      POSTGRES_PASSWORD: pppppppppppp
+      POSTGRES_USER: go-app
+      POSTGRES_DB: auth
+    ports: # unsafe but to debug good think
+      - "5432:5432"
+    volumes:
+      - /root/postgres/storage:/var/lib/postgresql/data
+#    healthcheck:
+#      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres}"]
+#      interval: 5s
+#      timeout: 3s
+#      retries: 10
+    restart: unless-stopped
+
+  valkey:
+    image: valkey/valkey:latest
+    container_name: my-valkey
+    command: ["valkey-server", "--appendonly", "yes"]
+#    ports:
+#      - "6379:6379"
+    volumes:
+      - /root/valkey/storage:/data
+#    healthcheck:
+#      # Если в образе нет valkey-cli, удалите healthcheck или замените на другой способ проверки
+#      test: ["CMD-SHELL", "valkey-cli ping | grep -q PONG"]
+#      interval: 5s
+#      timeout: 3s
+#      retries: 10
+    restart: unless-stopped
+
+  app:
+#    image: auth-proxy
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auth-proxy
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+#    environment:
+#      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-pppppppppppp}@postgres:5432/${POSTGRES_DB:-postgres}?sslmode=disable
+#      VALKEY_ADDR: valkey:6379
+    ports:
+      - "9000:9000"
+    restart: unless-stopped
