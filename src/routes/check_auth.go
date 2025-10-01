@@ -4,7 +4,6 @@ import (
 	"auth-proxy/share"
 	valkeypackage "auth-proxy/valkey"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,7 +32,7 @@ func CheckAuth(appContext *share.AppContext) gin.HandlerFunc {
 			return
 		}
 		appContext.Logger.Debugf("CheckAuth sucess userId:%d", userId)
-		ctx.Header("X-User-Id", userId)
+		ctx.Header("X-User-Id", strconv.Itoa(userId))
 		ctx.Status(200)
 	}
 }
