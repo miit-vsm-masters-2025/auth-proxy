@@ -3,7 +3,7 @@ services:
     image: ubuntu/postgres
     container_name: my-postgres
     environment:
-      POSTGRES_USER: go
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pppppppppppp
       POSTGRES_DB: auth
     ports: # unsafe but to debug good think
