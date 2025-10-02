@@ -3,9 +3,10 @@ package routes
 import (
 	"auth-proxy/postgre"
 	"auth-proxy/share"
+	"auth-proxy/utils"
 	localvalkey "auth-proxy/valkey"
-	"encoding/json"
-	"io"
+	"net/http"
+	"strings"
 
 	"crypto/rand"
 
@@ -23,37 +24,37 @@ func saveSession(client *valkey.Client, userId int) (sessionId string) {
 	return sessionId
 }
 
-func parseLoginBody(ctx *gin.Context) (*share.Login, error) {
-	body, err := io.ReadAll(ctx.Request.Body)
-	if err != nil {
-		return nil, err
+func parseLoginBody(ctx *gin.Context) *share.Login {
+	return &share.Login{
+		Login:    strings.TrimSpace(ctx.PostForm("login")),
+		Password: ctx.PostForm("password"),
 	}
-	var loginForm share.Login
-	err = json.Unmarshal(body, &loginForm)
-	if err != nil {
-		return nil, err
+}
+
+func renderLoginFail(ctx *gin.Context, redirectUrl string) {
+	if redirectUrl == "" {
+		redirectUrl = "/"
 	}
-	return &loginForm, nil
+	htmlPage := utils.RenderSignInHTML(redirectUrl, "", "")
+	ctx.Header("Content-Type", "text/html; charset=utf-8")
+	ctx.Status(http.StatusOK)
+	_, _ = ctx.Writer.Write([]byte(htmlPage))
 }
 
 func Login(appContext *share.AppContext) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		loginForm, err := parseLoginBody(ctx)
-		if err != nil {
-			appContext.Logger.Error(err.Error())
-			ctx.AbortWithStatus(400)
-			return
-		}
+		loginForm := parseLoginBody(ctx)
+		redirect := ctx.PostForm("return_to")
 		id, passwordHash, err := postgre.GetUserId(appContext.PostgresClient, loginForm.Login)
 		if err != nil {
 			appContext.Logger.Debugf("Login fail: incorrect creditinals %s", loginForm.Login)
-			ctx.AbortWithStatus(401)
+			renderLoginFail(ctx, redirect)
 			return
 		}
 		err = bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(loginForm.Password))
 		if err != nil {
 			appContext.Logger.Debugf("Login fail: incorrect password %s", loginForm.Login)
-			ctx.AbortWithStatus(401)
+			renderLoginFail(ctx, redirect)
 			return
 		}
 		sessionId := saveSession(appContext.Valkey, id)
@@ -61,6 +62,7 @@ func Login(appContext *share.AppContext) gin.HandlerFunc {
 		ctx.Header("X-Session-Id", sessionId)
 		ctx.SetCookie("koty42-session-id", sessionId, 3600, "", ".koty42.ru", false, true)
 		ctx.Status(200)
+		ctx.Redirect(http.StatusSeeOther, redirect)
 		return
 	}
 }

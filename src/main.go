@@ -20,6 +20,7 @@ func createRouter(appCtx share.AppContext) *gin.Engine {
 		//auth.GET("/me", routes.CheckAuth(&appCtx))
 		auth.POST("/login", routes.Login(&appCtx))
 		auth.POST("/reg", routes.Register(&appCtx))
+		auth.GET("/signin", routes.SignIn(&appCtx))
 	}
 	return router
 }
