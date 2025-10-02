@@ -10,11 +10,11 @@ services:
       - "5432:5432"
     volumes:
       - /root/postgres/storage:/var/lib/postgresql/data
-#    healthcheck:
-#      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres}"]
-#      interval: 5s
-#      timeout: 3s
-#      retries: 10
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     restart: unless-stopped
 
   valkey:
@@ -25,12 +25,12 @@ services:
 #      - "6379:6379"
     volumes:
       - /root/valkey/storage:/data
-#    healthcheck:
-#      # Если в образе нет valkey-cli, удалите healthcheck или замените на другой способ проверки
-#      test: ["CMD-SHELL", "valkey-cli ping | grep -q PONG"]
-#      interval: 5s
-#      timeout: 3s
-#      retries: 10
+    healthcheck:
+      # Если в образе нет valkey-cli, удалите healthcheck или замените на другой способ проверки
+      test: ["CMD-SHELL", "valkey-cli ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     restart: unless-stopped
 
   app:
