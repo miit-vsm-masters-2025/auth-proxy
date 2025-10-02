@@ -14,7 +14,7 @@ import (
 func createRouter(appCtx share.AppContext) *gin.Engine {
 	router := gin.Default()
 	router.GET("/ping", routes.Ping(&appCtx))
-	router.Any("/_auth", routes.CheckAuth(&appCtx))
+	router.Any("/auth", routes.CheckAuth(&appCtx))
 	auth := router.Group("/user")
 	{
 		//auth.GET("/me", routes.CheckAuth(&appCtx))
