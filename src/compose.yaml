@@ -33,12 +33,12 @@ services:
       retries: 10
     restart: unless-stopped
 
-  app:
+  auth-proxy-app:
 #    image: auth-proxy
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: auth-proxy
+    container_name: auth-proxy-app
     depends_on:
       postgres:
         condition: service_healthy
