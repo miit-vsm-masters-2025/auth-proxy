@@ -18,6 +18,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
 # Stage 2: Create the final lean image
+# TODO проблемы с кешами и .env разобраться что не так
 FROM alpine:latest
 
 # Set the working directory inside the container
