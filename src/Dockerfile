@@ -25,6 +25,7 @@ WORKDIR /root/
 
 # Copy the built binary from the builder stage
 COPY --from=builder /app/main .
+COPY .env.example .
 
 # Expose the port your application listens on (if applicable)
 EXPOSE 9000
