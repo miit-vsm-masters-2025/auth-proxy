@@ -18,9 +18,18 @@ func SetSession(valkeyClient *valkey.Client, sessionId string, id int) {
 func CheckSession(valkeyClient *valkey.Client, sessionId string) (userId int, err error) {
 	client := *valkeyClient
 	ctx := context.Background()
-	userIdStr, err := client.Do(ctx, client.B().Getex().Key(sessionId).Ex(time.Duration(share.ExpireSessionTime)).Build()).ToString()
+	result := client.Do(ctx, client.B().Getex().Key(sessionId).Ex(time.Duration(share.ExpireSessionTime)).Build())
+	if result.Error() != nil {
+		return 0, err
+	}
+	userIdStr, err := result.ToString()
 	_, err = strconv.ParseInt(userIdStr, 10, 64)
 	if err != nil {
+		//logger.Errorf(
+		//	"CheckAuth fail: Bad user id '%s' for session %s\n User Headers:%v",
+		//	userId,
+		//	sessionId,
+		//)
 		return 0, err
 	}
 	return userId, nil

@@ -21,11 +21,7 @@ func CheckAuth(appContext *share.AppContext) gin.HandlerFunc {
 		}
 		userId, err := valkeypackage.CheckSession(appContext.Valkey, sessionId)
 		if err != nil {
-			appContext.Logger.Errorf(
-				"CheckAuth fail: Bad user id '%s' for session %s\n User Headers:%v",
-				userId,
-				sessionId,
-			)
+			appContext.Logger.Errorf(err.Error())
 			//TODO remove invalid session if exists
 			ctx.Header("Set-Cookie", "")
 			ctx.AbortWithStatus(401)

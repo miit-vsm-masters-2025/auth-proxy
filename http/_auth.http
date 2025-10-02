@@ -1,6 +1,6 @@
 ### GET request to example server
-GET http://localhost:9000/_auth
+GET http://localhost:9000/auth
     ?generated-in=GoLand
-Cookie: 4OQS6I4AGJAWUSFDJDI62MAJXN
+Cookie: XVE2VDANXZCO2LJCN63NUZT7OC
 
 ###
